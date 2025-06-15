@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import plotly.graph_objects as go 
 import joblib
 
 # ----------------------------
@@ -17,6 +18,40 @@ def load_model():
         raise
 
 model, model_columns = load_model()
+
+# ----------------------------
+# Fonction : Cadrant (compteur visuel)
+# ----------------------------
+def plot_gauge_chart(score):
+    fig = go.Figure(go.Indicator(
+        domain={'x': [0, 1], 'y': [0, 1]},
+        value=score,
+        mode="gauge+number",
+        title={'text': "Probabilité de défaut", 'font': {'size': 24}},
+        gauge={
+            'axis': {'range': [None, 1]},
+            'bar': {'color': "darkblue"},
+            'bgcolor': "white",
+            'borderwidth': 2,
+            'bordercolor': "gray",
+            'steps': [
+                {'range': [0, 0.3], 'color': 'green'},
+                {'range': [0.3, 0.7], 'color': 'yellow'},
+                {'range': [0.7, 1], 'color': 'red'}
+            ],
+            'threshold': {
+                'line': {'color': "black", 'width': 4},
+                'thickness': 0.75,
+                'value': score
+            }}))
+
+    fig.update_layout(font={'color': "black", 'family': "Arial"},
+                      paper_bgcolor='rgba(255,255,255,1)',
+                      plot_bgcolor='rgba(255,255,255,1)',
+                      margin=dict(l=20, r=20, t=80, b=20))
+    
+    return fig
+
 
 # ----------------------------
 # Interface utilisateur
@@ -55,3 +90,5 @@ with st.expander(" Voir les features utilisées pour la prédiction"):
 proba = model.predict_proba(X_client_encoded)[0, 1]
 st.subheader(" Résultat de la prédiction :")
 st.metric(label="Probabilité de défaut", value=f"{proba:.2%}")
+fig = plot_gauge_chart(proba)
+st.plotly_chart(fig, use_container_width=True)
