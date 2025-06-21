@@ -6,9 +6,9 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 
 # ----------------------------
-# Préparation des données (à adapter selon ton dataset)
+# Préparation des données 
 # ----------------------------
-df = pd.read_csv("data/data_cleaned.csv")  # Remplace par ton vrai fichier
+df = pd.read_csv("data/data_cleaned.csv")  # le fichier nettoyé
 y = df["TARGET"]
 X = df.drop(columns=["TARGET", "SK_ID_CURR"], errors="ignore")
 

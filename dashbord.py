@@ -1,8 +1,10 @@
 import streamlit as st
+import shap
 import pandas as pd
 import numpy as np
 import plotly.graph_objects as go 
 import joblib
+import matplotlib.pyplot as plt
 
 # ----------------------------
 # Charger le modèle et les colonnes
@@ -92,3 +94,21 @@ st.subheader(" Résultat de la prédiction :")
 st.metric(label="Probabilité de défaut", value=f"{proba:.2%}")
 fig = plot_gauge_chart(proba)
 st.plotly_chart(fig, use_container_width=True)
+
+# ----------------------------
+# Interprétation locale avec SHAP
+# ----------------------------
+with st.expander(" Interprétation locale des features (SHAP)"):
+    try:
+        # Créer l'explainer SHAP
+        explainer = shap.Explainer(model)
+
+        # Calculer les valeurs SHAP du client
+        shap_values = explainer(X_client_encoded)
+
+        # Afficher le graphe waterfall
+        st.set_option('deprecation.showPyplotGlobalUse', False)
+        shap.plots.waterfall(shap_values[0], show=False)
+        st.pyplot(bbox_inches='tight')
+    except Exception as e:
+        st.error(f"Erreur lors de l'explication SHAP : {e}")
